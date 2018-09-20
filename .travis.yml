@@ -19,14 +19,15 @@ addons:
       - musl-tools
 
 script:
-  - #cargo test
+  - if [[ "$TARGET" == *musl ]]; then rustup target add $TARGET; fi
+  - cargo test
 
 before_deploy:
-  pip install pyo3-pack
+  - pip install --user pyo3-pack
 
 deploy:
   provider: script
-  script: pyo3-pack publish -u $PYPI_USERNAME -b bin --release -r https://test.pypi.org/legacy/
+  script: pyo3-pack publish -u $PYPI_USERNAME -b bin --release -r https://test.pypi.org/legacy/ --target $TARGET
   skip_cleanup: true
   on:
     tags: true

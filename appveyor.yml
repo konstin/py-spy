@@ -14,12 +14,12 @@ install:
   - set PATH=%PATH%;%USERPROFILE%\.cargo\bin
 
 test_script:
-  - #cargo test
+  - cargo test
 
 before_deploy:
   - pip install pyo3-pack
 
 deploy_script:
-  - pyo3-pack publish -u $PYPI_USERNAME -b bin --release -r https://test.pypi.org/legacy/
+  - pyo3-pack publish -u %PYPI_USERNAME% -b bin --release -r https://test.pypi.org/legacy/ --target %TARGET%
 
 build: off
