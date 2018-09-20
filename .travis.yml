@@ -22,7 +22,7 @@ script:
   - #cargo test
 
 before_deploy:
-  pip install pyo3-pack
+  pip3 install --user pyo3-pack
 
 deploy:
   provider: script
