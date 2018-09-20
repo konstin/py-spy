@@ -1,14 +1,42 @@
 language: rust
-sudo: required
 
 matrix:
   include:
-    - env: TARGET=i686-unknown-linux-gnu
-    - env: TARGET=x86_64-unknown-linux-gnu
-    - env: TARGET=i686-apple-darwin
-      os: osx
+    - env: TARGET=i686-unknown-linux-musl
+    - env: TARGET=x86_64-unknown-linux-musl
     - env: TARGET=x86_64-apple-darwin
       os: osx
 
+env:
+  global:
+    - PYPI_USERNAME=konstin
+    # The encoded PYO3_PACK_PASSWORD
+    - secure: BuHykCkFxRZ/OUGdt3CJG7znqb/XwyWP8HHwPPpAhZ3eAZOw+qoD9/xDqaHtckbvALq+v1nGy1dsKdHLVp6lywBDwGGHg5s5MuSDBZAyRK78bpIq72Z/1LEAihQC6l8e3axW0+REuYV8H0IfwUCyy0CKbZ2et+6uv2YO0bqyN3au3YxZYVjcmy861qoxy8U/fB1cHNSFIcWGYy8YrHmgKqd5FuW4rsbsz5poZFqfmudlJkHh/4MMrX5T2cyJ0Xvc2ICPgLOieEOv1DCDmn6x/BvaPggjPMdh9q0Oh8eoTO4zsE9SETUBDC+fI1rwIcnsYw67EmCsypTudSsOSlKxiQPdU9WPFHYLbGP6zQQF4s5g32r5BGJgrzgdcuXPfdLcxt/SgimDPsFdYOrE+07Vl0BNWSLlfFfcr17uRYLLuvE8W3tFSiEBLg4SWCmczGcTaaniBIotdz7FBVO993IcwtaDrVVR6ZiFWwflT/DNl7AHd202Wfbty7Fl0gKltFI1IKux8UXAAmgByyKM4UxFIeZzwNegAMGj1Pojnr6hKaSU+LpPUm8gFgmmFvl7Ofg97db2GmreE97C0IMiuKP4U9GoEY5GJ/3n6Kbthprr3IlsouWyoIjjYaeUAhBtcdscb4xT5wUIdj5UeOQDqIGNkxWtG+b0GS90XLZzFqlTq0o=
+
+addons:
+  apt:
+    packages:
+      - musl-tools
+
 script:
-  - cargo test --verbose
+  - #cargo test
+
+before_deploy:
+  pip install pyo3-pack
+
+deploy:
+  provider: script
+  script: pyo3-pack publish -u $PYPI_USERNAME -b bin --release -r https://test.pypi.org/legacy/
+  skip_cleanup: true
+  on:
+    tags: true
+
+branches:
+  only:
+    # Pushes to the master branch
+    - master
+    # Match release tags with a regex
+    - /^v\d+\.\d+\.\d+.*$/
+
+notifications:
+  email: false

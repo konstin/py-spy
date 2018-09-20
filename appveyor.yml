@@ -1,32 +1,25 @@
 environment:
-  TWINE_USERNAME: benfred
-  # Note: TWINE_PASSWORD is set in Appveyor settings
+  PYPI_USERNAME: konstin
+  PYO3_PACK_PASSWORD:
+    secure: Re9Dc8ZtgroxOc1PSO/0Hu7h9sUwjPdrufdr2Ycc3ho=
   matrix:
-    # Nightly 64-bit MSVC
-    - channel: stable
-      target: x86_64-pc-windows-msvc
-      CIBW_SKIP: "*win32* cp27-* cp33-* cp34-* cp35-*"
-      CIBW_BEFORE_BUILD: pip install setuptools-rust
+    - CHANNEL: stable
+      TARGET: x86_64-pc-windows-msvc
+    - CHANNEL: stable
+      TARGET: i686-pc-windows-msvc
 
-# from: https://github.com/starkat99/appveyor-rust/blob/master/appveyor.yml
 install:
   - appveyor DownloadFile https://win.rustup.rs/ -FileName rustup-init.exe
-  - rustup-init -yv --default-toolchain stable --default-host %target%
+  - rustup-init -y --default-toolchain %CHANNEL% --default-host %TARGET%
   - set PATH=%PATH%;%USERPROFILE%\.cargo\bin
-  - rustc -vV
-  - cargo -vV
-  - pip install cibuildwheel==0.9.1 setuptools_rust
 
-build_script:
-  - cibuildwheel --output-dir wheelhouse
-  - >
-    IF "%APPVEYOR_REPO_TAG%" == "true"
-    (
-    python -m pip install twine
-    &&
-    python -m twine upload wheelhouse/*.whl
-    )
+test_script:
+  - #cargo test
 
-artifacts:
-  - path: "wheelhouse\\*.whl"
-    name: Wheels
+before_deploy:
+  - pip install pyo3-pack
+
+deploy_script:
+  - pyo3-pack publish -u $PYPI_USERNAME -b bin --release -r https://test.pypi.org/legacy/
+
+build: off
