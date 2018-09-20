@@ -17,12 +17,13 @@ addons:
   apt:
     packages:
       - musl-tools
+      - python3-pip
 
 script:
   - #cargo test
 
 before_deploy:
-  pip install pyo3-pack
+  - python3.6 -m pip install --user pyo3-pack
 
 deploy:
   provider: script
